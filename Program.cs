@@ -10,10 +10,10 @@ namespace PEA_TSP1
     {
         static void Main(string[] args)
         {
-            string d = "  333";
-            int a = int.Parse(d);
+            FileReader fileReader = new FileReader();
+            fileReader.GetMatrix("br17.atsp");
 
-            Console.WriteLine(a);
+            
             Console.ReadKey();
         }
     }
