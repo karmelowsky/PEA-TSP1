@@ -1,0 +1,7 @@
+C:\vs projects\PEA-TSP1\obj\Debug\PEA-TSP1.csprojResolveAssemblyReference.cache
+C:\vs projects\PEA-TSP1\obj\Debug\PEA-TSP1.csproj.CoreCompileInputs.cache
+C:\vs projects\PEA-TSP1\bin\Debug\PEA-TSP1.exe.config
+C:\vs projects\PEA-TSP1\bin\Debug\PEA-TSP1.exe
+C:\vs projects\PEA-TSP1\bin\Debug\PEA-TSP1.pdb
+C:\vs projects\PEA-TSP1\obj\Debug\PEA-TSP1.exe
+C:\vs projects\PEA-TSP1\obj\Debug\PEA-TSP1.pdb
