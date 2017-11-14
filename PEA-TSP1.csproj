@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ATSPMatrix.cs" />
+    <Compile Include="ConsoleDisplayer.cs" />
     <Compile Include="ConvertTools.cs" />
     <Compile Include="FileReader.cs" />
     <Compile Include="Program.cs" />

@@ -11,9 +11,15 @@ namespace PEA_TSP1
         static void Main(string[] args)
         {
             FileReader fileReader = new FileReader();
-            fileReader.GetMatrix("br17.atsp");
+            var consoleDisplayer = new ConsoleDisplayer();
 
-            
+            consoleDisplayer.ShowFileList(fileReader.GetATSPFilenames());
+
+            var atspMatrix = fileReader.GetMatrix("ftv33.atsp");
+
+            consoleDisplayer.ShowMatrix(atspMatrix);
+
+
             Console.ReadKey();
         }
     }

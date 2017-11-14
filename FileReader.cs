@@ -13,9 +13,20 @@ namespace PEA_TSP1
     public class FileReader
     {
         private const string ATSPPath = "ALL_atsp\\";
+        private const string TSPPath = "ALL_tsp\\";
 
-        public int[,] GetMatrix(string filename)
+        public List<string> GetATSPFilenames()
         {
+            var listToReturn = new List<string>();
+
+            listToReturn = Directory.GetDirectories(ATSPPath).ToList();
+
+            return listToReturn;
+        }
+
+        public ATSPMatrix GetMatrix(string filename)
+        {
+
             int[,] matrix = null;
             string text = null;
 
@@ -44,25 +55,28 @@ namespace PEA_TSP1
                 return null;
             }
 
-            //string[] numberLines = new string[dimension * dimension];
-            //Array.Copy(lines, 7, numberLines, 0, lines.Length - 7);
-
-            //matrix = new int[dimension, dimension];
 
 
-            //for (int i = 0; i < dimension; i++)
-            //{
-
-            //}
+            matrix = new int[dimension, dimension];
 
             int firstNumberIndex = text.LastIndexOf('N') + 3;
 
             text = text.Substring(firstNumberIndex);
 
-            var stringNumbers = text.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-            
+            var stringNumbers = text.Split(new char[] {' ', 'E', 'O', 'F'}, StringSplitOptions.RemoveEmptyEntries);
 
-            return matrix;
+            int index = 0;
+            for(int i = 0; i < dimension; i++)
+            for (int j = 0; j < dimension; j++)
+            {
+                matrix[i,j] = int.Parse(stringNumbers[index]);
+                index++;
+            }
+
+            ATSPMatrix atspMatrix = new ATSPMatrix();
+            atspMatrix.Matrix = matrix;
+
+            return atspMatrix;
         }
 
     }
