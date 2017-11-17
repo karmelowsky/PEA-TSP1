@@ -21,8 +21,7 @@ namespace PEA_TSP1
             solver.AtspMatrix = atspMatrix;
             solver.Solve();
 
-
-            consoleDisplayer.ShowMatrix(atspMatrix);
+            Console.WriteLine(solver.LowerBound);
 
 
             Console.ReadKey();
