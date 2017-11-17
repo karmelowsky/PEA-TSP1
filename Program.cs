@@ -15,7 +15,12 @@ namespace PEA_TSP1
 
             consoleDisplayer.ShowFileList(fileReader.GetATSPFilenames());
 
-            var atspMatrix = fileReader.GetMatrix("ftv33.atsp");
+            var atspMatrix = fileReader.GetMatrix("TEST");
+
+            ATSPSolver solver = new ATSPSolver();
+            solver.AtspMatrix = atspMatrix;
+            solver.Solve();
+
 
             consoleDisplayer.ShowMatrix(atspMatrix);
 

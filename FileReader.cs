@@ -63,13 +63,15 @@ namespace PEA_TSP1
 
             text = text.Substring(firstNumberIndex);
 
-            var stringNumbers = text.Split(new char[] {' ', 'E', 'O', 'F'}, StringSplitOptions.RemoveEmptyEntries);
+            var stringNumbers = text.Split(new char[] {' ', '\r' , 'E', 'O', 'F'}, StringSplitOptions.RemoveEmptyEntries);
 
             int index = 0;
             for(int i = 0; i < dimension; i++)
             for (int j = 0; j < dimension; j++)
             {
                 matrix[i,j] = int.Parse(stringNumbers[index]);
+                matrix[i,j] = matrix[i, j] > 9998 ? -1 : matrix[i, j];
+
                 index++;
             }
 
