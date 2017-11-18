@@ -45,6 +45,7 @@
     <Compile Include="ATSPMatrix.cs" />
     <Compile Include="ConsoleDisplayer.cs" />
     <Compile Include="ConvertTools.cs" />
+    <Compile Include="Edge.cs" />
     <Compile Include="FileReader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

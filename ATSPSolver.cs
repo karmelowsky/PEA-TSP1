@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -14,13 +15,13 @@ namespace PEA_TSP1
             LowerBound = 0;
             ignoredColumns = new List<int>();
             ignoredRows = new List<int>();
-            ResultPath = null;
+            ResultPath = new List<Edge>();
         }
 
         public ATSPMatrix AtspMatrix { get; set; }
         public int LowerBound { get; private set; }
 
-        public int[,] ResultPath { get; private set; }
+        public List<Edge> ResultPath { get; private set; }
 
         private List<int> ignoredRows;
         private List<int> ignoredColumns;
@@ -88,8 +89,36 @@ namespace PEA_TSP1
 
                 new ConsoleDisplayer().ShowMatrix(AtspMatrix);
             }
-            
-            
+
+            IgnoredRowsAndColumnsToResult();
+        }
+
+        private void IgnoredRowsAndColumnsToResult()
+        {
+            var edgeList = new List<Edge>();
+
+            for (int i = 0; i < AtspMatrix.Dimension-2; i++)
+            {
+                var edge = new Edge();
+                edge.CityA = ignoredRows[i];
+                edge.CityB = ignoredColumns[i];
+                edgeList.Add(edge);    
+            }
+
+            foreach (Edge edge in edgeList)
+            {
+                Console.WriteLine(edge.CityA + " "+edge.CityB);
+            }
+
+             ResultPath.Add(edgeList[0]);
+
+            for (int i = 0; i < AtspMatrix.Dimension-2; i++)
+            {
+                var resultEdge = edgeList.FirstOrDefault(x => x.CityA == ResultPath[i].CityB);
+                ResultPath.Add(resultEdge);
+                // edgeList.Remove(resultEdge);
+            }
+
         }
 
         private void IgnoreByRow(int row)
@@ -217,7 +246,8 @@ namespace PEA_TSP1
                     minimum = cost;
 
             }
-
+            if (minimum == 99999)
+                Console.WriteLine("blad");
             return minimum;
         }
 
@@ -243,6 +273,10 @@ namespace PEA_TSP1
                     minimum = cost;
 
             }
+
+
+            if (minimum == 99999)
+                Console.WriteLine("blad");
 
             return minimum;
         }

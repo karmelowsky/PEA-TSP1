@@ -15,7 +15,7 @@ namespace PEA_TSP1
 
             consoleDisplayer.ShowFileList(fileReader.GetATSPFilenames());
 
-            var atspMatrix = fileReader.GetMatrix("TEST");
+            var atspMatrix = fileReader.GetMatrix("TEST2");
 
             ATSPSolver solver = new ATSPSolver();
             solver.AtspMatrix = atspMatrix;
