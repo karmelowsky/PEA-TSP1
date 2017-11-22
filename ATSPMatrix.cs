@@ -8,9 +8,16 @@ namespace PEA_TSP1
 {
     public class ATSPMatrix
     {
+        private int[,] _matrix;
         private int? _dimension;
 
-        private int[,] _matrix;
+        public List<int> DeletedRows { get; set; }
+        public List<int> DeletedColumns { get; set; }
+        public List<Edge> TakenEdges { get; set; }
+        public int LowerBound { get; set; }
+
+        public bool Finished => TakenEdges.Count == Dimension;
+
         public int? Dimension
         {
             get => _dimension ?? -1;
@@ -25,6 +32,64 @@ namespace PEA_TSP1
                 Dimension = (int?)Math.Sqrt(value.Length);
             } }
 
+        public ATSPMatrix()
+        {
+            LowerBound = 0;
+            DeletedColumns = new List<int>();
+            DeletedRows = new List<int>();
+            TakenEdges = new List<Edge>();
+        }
 
+        public void ReduceRows()
+        {
+            for (int i = 0; i < this.Dimension; i++)
+            {
+                int min = 99999;
+
+                for (int j = 0; j < this.Dimension; j++)
+                {
+                    if (min > this.Matrix[i, j] && this.Matrix[i, j] != -1)
+                    {
+                        min = this.Matrix[i, j];
+                    }
+                }
+
+                for (int j = 0; j < this.Dimension; j++)
+                {
+                    if (this.Matrix[i, j] != -1)
+                        this.Matrix[i, j] -= min;
+                }
+
+                if (min != 99999)
+                    this.LowerBound += min;
+            }
+
+        }
+
+        public void ReduceColumns()
+        {
+
+            for (int i = 0; i < this.Dimension; i++)
+            {
+                int min = 99999;
+
+                for (int j = 0; j < this.Dimension; j++)
+                {
+                    if (min > this.Matrix[j, i] && this.Matrix[j, i] != -1)
+                    {
+                        min = this.Matrix[j, i];
+                    }
+                }
+
+                for (int j = 0; j < this.Dimension; j++)
+                {
+                    if (this.Matrix[j, i] != -1)
+                        this.Matrix[j, i] -= min;
+                }
+                if (min != 99999)
+                    this.LowerBound += min;
+            }
+
+        }
     }
 }

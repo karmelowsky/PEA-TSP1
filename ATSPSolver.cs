@@ -10,98 +10,109 @@ namespace PEA_TSP1
 {
     public class ATSPSolver
     {
-        public ATSPSolver()
-        {
-            LowerBound = 0;
-            ignoredColumns = new List<int>();
-            ignoredRows = new List<int>();
-            ResultPath = new List<Edge>();
-        }
-
-        public ATSPMatrix AtspMatrix { get; set; }
-        public int LowerBound { get; private set; }
+        private ATSPMatrix _currentAtspMatrix;
+        private List<ATSPMatrix> _matrixQueue;
 
         public List<Edge> ResultPath { get; private set; }
+        public ATSPMatrix MatrixToSolve { get; set; }
 
-        private List<int> ignoredRows;
-        private List<int> ignoredColumns;
+        public ATSPSolver()
+        {
+            ResultPath = new List<Edge>();
+            _matrixQueue = new List<ATSPMatrix>();
+        }
 
         public void Solve()
         {
-            new ConsoleDisplayer().ShowMatrix(AtspMatrix);
-            while (ignoredColumns.Count < AtspMatrix.Dimension - 2)
+            if (MatrixToSolve == null)
             {
-                
-                Console.WriteLine();
+                Console.WriteLine("Nie przydzielono macierzy do rozwiązania");
+                return;
+            }
 
+            _currentAtspMatrix = new ATSPMatrix();
+            _currentAtspMatrix.Matrix = (int[,])MatrixToSolve.Matrix.Clone();
+
+            while (_currentAtspMatrix.TakenEdges.Count <= _currentAtspMatrix.Dimension -2)
+            {
                 ReduceRows();
                 ReduceColumns();
 
+                Console.WriteLine();
+                new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
 
-                // przeszukiwanie wierszów, minimalna wartość
+                var edgeToDelete = FindEdgeToDelete();
 
-                int allRowsMinsMax = -1;
-                int rowIndex = -1;
-                int rowMin;
+                // Xij = 0 Przygotowanie macierzy
+                var matrixB = new ATSPMatrix();
+                matrixB.Matrix = (int[,])_currentAtspMatrix.Matrix.Clone();
 
-                for (int i = 0; i < AtspMatrix.Dimension; i++)
-                {
-                    if (ignoredRows.Contains(i))
-                        continue;
+                // zablokowanie Xij = INF
+                matrixB.Matrix[edgeToDelete.CityA, edgeToDelete.CityB] = -1;
 
-                    rowMin = FindRowMinimum(i);
-                    if (rowMin > allRowsMinsMax)
-                    {
-                        allRowsMinsMax = rowMin;
-                        rowIndex = i;
-                    }
+                // redukcja alternatywnej drogi i redukcja (aktualizacja LB)
+                matrixB.ReduceRows();
+                matrixB.ReduceColumns();
 
+                //dodanie macierzy B listy oczekujacych
+                _matrixQueue.Add(matrixB);
 
-                }
+                //wstawienie nieskonczonosci do obecnej macierzy w wyszukanym wierszu i kolumnie
+                SetInfToRowAndColumn(edgeToDelete.CityA, edgeToDelete.CityB);
+                _currentAtspMatrix.TakenEdges.Add(edgeToDelete);
 
-                // przeszukiwanie kolumn, minimalna wartość
-                int allColumnsMinsMax = -1;
-                int columnIndex = -1;
-                int columnMin;
-
-                for (int i = 0; i < AtspMatrix.Dimension; i++)
-                {
-                    if (ignoredColumns.Contains(i))
-                        continue;
-
-                    columnMin = FindColumnMinimum(i);
-                    if (columnMin > allColumnsMinsMax)
-                    {
-                        allColumnsMinsMax = columnMin;
-                        columnIndex = i;
-                    }
-
-                }
-
-                if (allRowsMinsMax > allColumnsMinsMax)
-                {
-                    IgnoreByRow(rowIndex);
-                }
-                else
-                {
-                    IgnoreByColumn(columnIndex);
-                }
-
-                new ConsoleDisplayer().ShowMatrix(AtspMatrix);
+                //Console.WriteLine();
+                //new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
             }
-
-            IgnoredRowsAndColumnsToResult();
+            
         }
 
-        private void IgnoredRowsAndColumnsToResult()
+        private void SetInfToRowAndColumn(int row, int col)
+        {
+            for (int i = 0; i < _currentAtspMatrix.Dimension; i++)
+            {
+                _currentAtspMatrix.Matrix[row, i] = -1;
+                _currentAtspMatrix.Matrix[i, col] = -1;
+            }  
+
+            //eliminacja podtras
+            if (_currentAtspMatrix.Matrix[col, row] != -1)
+            {
+                _currentAtspMatrix.Matrix[col, row] = -1;
+                return;
+            }
+
+            for (int i = _currentAtspMatrix.TakenEdges.Count-1; i >= 0; i--)
+            {
+                var cityA = _currentAtspMatrix.TakenEdges[i].CityA;
+                var cityB = _currentAtspMatrix.TakenEdges[i].CityB;
+                if (_currentAtspMatrix.Matrix[col, cityA] != -1)
+                {
+                    _currentAtspMatrix.Matrix[col, cityA] = -1;
+                    return;
+                }
+
+                if (_currentAtspMatrix.Matrix[cityB, row] != -1)
+                {
+                    _currentAtspMatrix.Matrix[cityB, row] = -1;
+                    return;
+                }
+            }
+                
+            
+
+            Console.WriteLine("Błąd SetInfRowAndColumn");
+        }
+
+        private void DeletedRowsAndColumnsToResult()
         {
             var edgeList = new List<Edge>();
 
-            for (int i = 0; i < AtspMatrix.Dimension-2; i++)
+            for (int i = 0; i < _currentAtspMatrix.Dimension-2; i++)
             {
                 var edge = new Edge();
-                edge.CityA = ignoredRows[i];
-                edge.CityB = ignoredColumns[i];
+                edge.CityA = _currentAtspMatrix.DeletedRows[i];
+                edge.CityB = _currentAtspMatrix.DeletedColumns[i];
                 edgeList.Add(edge);    
             }
 
@@ -112,88 +123,37 @@ namespace PEA_TSP1
 
              ResultPath.Add(edgeList[0]);
 
-            for (int i = 0; i < AtspMatrix.Dimension-2; i++)
+            for (int i = 0; i < _currentAtspMatrix.Dimension-2; i++)
             {
                 var resultEdge = edgeList.FirstOrDefault(x => x.CityA == ResultPath[i].CityB);
                 ResultPath.Add(resultEdge);
-                // edgeList.Remove(resultEdge);
             }
 
         }
 
-        private void IgnoreByRow(int row)
-        {
-            int columnToIgnore = -1;
-
-            for (int i = 0; i < AtspMatrix.Dimension; i++)
-            {
-                if (AtspMatrix.Matrix[row, i] == 0 && columnToIgnore == -1)
-                {
-                    columnToIgnore = i;
-                }
-
-                AtspMatrix.Matrix[row, i] = -1;
-
-            }
-
-            for (int i = 0; i < AtspMatrix.Dimension; i++)
-            {
-                AtspMatrix.Matrix[i, columnToIgnore] = -1; 
-            }
-
-            AtspMatrix.Matrix[columnToIgnore, row] = -1;
-
-            ignoredRows.Add(row);
-            ignoredColumns.Add(columnToIgnore);
-        }
-
-        private void IgnoreByColumn(int column)
-        {
-            int rowToIgnore = -1;
-
-            for (int i = 0; i < AtspMatrix.Dimension; i++)
-            {
-                if (AtspMatrix.Matrix[i, column] == 0 && rowToIgnore == -1)
-                {
-                    rowToIgnore = i;
-                }
-
-                AtspMatrix.Matrix[i, column] = -1;
-
-            }
-
-            for (int i = 0; i < AtspMatrix.Dimension; i++)
-            {
-                AtspMatrix.Matrix[rowToIgnore,i] = -1;
-            }
-
-            AtspMatrix.Matrix[column, rowToIgnore] = -1;
-            ignoredColumns.Add(column);
-            ignoredRows.Add(rowToIgnore);
-        }
 
         private void ReduceRows()
         {
-            for (int i = 0; i < AtspMatrix.Dimension; i++)
+            for (int i = 0; i < _currentAtspMatrix.Dimension; i++)
             {
                 int min= 99999;
 
-                for (int j = 0; j < AtspMatrix.Dimension; j++)
+                for (int j = 0; j < _currentAtspMatrix.Dimension; j++)
                 {
-                    if (min > AtspMatrix.Matrix[i, j] && AtspMatrix.Matrix[i,j] != -1)
+                    if (min > _currentAtspMatrix.Matrix[i, j] && _currentAtspMatrix.Matrix[i,j] != -1)
                     {
-                        min = AtspMatrix.Matrix[i, j];
+                        min = _currentAtspMatrix.Matrix[i, j];
                     }
                 }
 
-                for (int j = 0; j < AtspMatrix.Dimension; j++)
+                for (int j = 0; j < _currentAtspMatrix.Dimension; j++)
                 {
-                    if(AtspMatrix.Matrix[i,j]!= -1)
-                    AtspMatrix.Matrix[i, j] -= min;
+                    if(_currentAtspMatrix.Matrix[i,j]!= -1)
+                    _currentAtspMatrix.Matrix[i, j] -= min;
                 }
 
                 if(min!=99999)
-                    LowerBound += min;
+                    _currentAtspMatrix.LowerBound += min;
             }
   
         }
@@ -201,27 +161,52 @@ namespace PEA_TSP1
         private void ReduceColumns()
         {
 
-            for (int i = 0; i < AtspMatrix.Dimension; i++)
+            for (int i = 0; i < _currentAtspMatrix.Dimension; i++)
             {
                 int min = 99999;
 
-                for (int j = 0; j < AtspMatrix.Dimension; j++)
+                for (int j = 0; j < _currentAtspMatrix.Dimension; j++)
                 {
-                    if (min > AtspMatrix.Matrix[j, i] && AtspMatrix.Matrix[j, i] != -1)
+                    if (min > _currentAtspMatrix.Matrix[j, i] && _currentAtspMatrix.Matrix[j, i] != -1)
                     {
-                        min = AtspMatrix.Matrix[j, i];
+                        min = _currentAtspMatrix.Matrix[j, i];
                     }
                 }
 
-                for (int j = 0; j < AtspMatrix.Dimension; j++)
+                for (int j = 0; j < _currentAtspMatrix.Dimension; j++)
                 {
-                    if (AtspMatrix.Matrix[j, i] != -1)
-                        AtspMatrix.Matrix[j, i] -= min;
+                    if (_currentAtspMatrix.Matrix[j, i] != -1)
+                        _currentAtspMatrix.Matrix[j, i] -= min;
                 }
                 if (min != 99999)
-                    LowerBound += min;
+                    _currentAtspMatrix.LowerBound += min;
             }
 
+        }
+
+        private Edge FindEdgeToDelete()
+        {
+            var edgeToReturn = new Edge();
+            int maxPenalty = -1;
+
+            for (int i = 0; i < _currentAtspMatrix.Dimension; i++)
+            {
+                for (int j = 0; j < _currentAtspMatrix.Dimension; j++)
+                {
+                    if (_currentAtspMatrix.Matrix[i, j] == 0)
+                    {
+                        int penalty = FindRowMinimum(i) + FindColumnMinimum(j);
+                        if (penalty > maxPenalty)
+                        {
+                            maxPenalty = penalty;
+                            edgeToReturn.CityA = i;
+                            edgeToReturn.CityB = j;
+                        }
+                           
+                    }
+                }
+            }
+            return edgeToReturn;
         }
 
         private int FindRowMinimum(int row)
@@ -229,9 +214,9 @@ namespace PEA_TSP1
             int minimum = 99999;
             bool firstZero = true;
 
-            for (int i = 0; i < AtspMatrix.Dimension; i++)
+            for (int i = 0; i < _currentAtspMatrix.Dimension; i++)
             {
-                int cost = AtspMatrix.Matrix[row, i];
+                int cost = _currentAtspMatrix.Matrix[row, i];
 
                 if(cost == -1 )
                     continue;
@@ -248,6 +233,7 @@ namespace PEA_TSP1
             }
             if (minimum == 99999)
                 Console.WriteLine("blad");
+
             return minimum;
         }
 
@@ -256,9 +242,9 @@ namespace PEA_TSP1
             int minimum = 99999;
             bool firstZero = true;
 
-            for (int i = 0; i < AtspMatrix.Dimension; i++)
+            for (int i = 0; i < _currentAtspMatrix.Dimension; i++)
             {
-                int cost = AtspMatrix.Matrix[i, column];
+                int cost = _currentAtspMatrix.Matrix[i, column];
 
                 if (cost == -1)
                     continue;
