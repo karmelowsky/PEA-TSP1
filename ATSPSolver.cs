@@ -62,7 +62,7 @@ namespace PEA_TSP1
                 //wstawienie nieskonczonosci do obecnej macierzy w wyszukanym wierszu i kolumnie
                 SetInfToRowAndColumn(edgeToDelete.CityA, edgeToDelete.CityB);
                 _currentAtspMatrix.TakenEdges.Add(edgeToDelete);
-
+                Console.WriteLine("Poniżej wzieto krawedz: "+ (edgeToDelete.CityA) +" "+(edgeToDelete.CityB));
                 //Console.WriteLine();
                 //new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
             }
@@ -134,30 +134,37 @@ namespace PEA_TSP1
             }  
 
             //eliminacja podtras
-            if (_currentAtspMatrix.Matrix[col, row] != -1)
+
+            //znalezienie poczatku i konca subtrasy
+            int subTourEnd = col;
+            int subTourStart = row;
+            bool tourChanged=false;
+
+            do
             {
-                _currentAtspMatrix.Matrix[col, row] = -1;
+                tourChanged = false;
+                foreach (var edge in _currentAtspMatrix.TakenEdges)
+                {
+                    if (edge.CityB == subTourStart)
+                    {
+                        subTourStart = edge.CityA;
+                        tourChanged = true;
+                    }
+
+                    if (edge.CityA == subTourEnd)
+                    {
+                        subTourEnd = edge.CityB;
+                        tourChanged = true;
+                    }
+                }
+            } while (tourChanged);
+
+            //wstawienie inf w celu zablokowania przejscia powrotnego
+            if (_currentAtspMatrix.Matrix[subTourEnd, subTourStart] != -1)
+            {
+                _currentAtspMatrix.Matrix[subTourEnd, subTourStart] = -1;
                 return;
             }
-
-            for (int i = _currentAtspMatrix.TakenEdges.Count-1; i >= 0; i--)
-            {
-                var cityA = _currentAtspMatrix.TakenEdges[i].CityA;
-                var cityB = _currentAtspMatrix.TakenEdges[i].CityB;
-                if (_currentAtspMatrix.Matrix[col, cityA] != -1)
-                {
-                    _currentAtspMatrix.Matrix[col, cityA] = -1;
-                    return;
-                }
-
-                if (_currentAtspMatrix.Matrix[cityB, row] != -1)
-                {
-                    _currentAtspMatrix.Matrix[cityB, row] = -1;
-                    return;
-                }
-            }
-                
-            
 
             Console.WriteLine("Błąd SetInfRowAndColumn");
         }
@@ -172,7 +179,7 @@ namespace PEA_TSP1
             var edgeListToReturn = new List<Edge>();
             edgeListToReturn.Add(_currentAtspMatrix.TakenEdges[0]);
 
-            for (int i = 0; i < _currentAtspMatrix.Dimension; i++)
+            for (int i = 0; i < _currentAtspMatrix.Dimension- 1; i++)
             {
                 edgeListToReturn.Add(_currentAtspMatrix.TakenEdges.First(e => e.CityA == edgeListToReturn[i].CityB));
             }

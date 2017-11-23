@@ -26,7 +26,7 @@ namespace PEA_TSP1
             {
                 for (int j = 0; j < atspMatrix.Dimension; j++)
                 {
-                    Console.CursorLeft = j * 5;
+                    //Console.CursorLeft = j * 5;
                     Console.Write(atspMatrix.Matrix[i, j]+ " ");
                 }
                 Console.WriteLine();
