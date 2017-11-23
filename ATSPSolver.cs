@@ -16,6 +16,8 @@ namespace PEA_TSP1
         public List<Edge> ResultPath { get; private set; }
         public ATSPMatrix MatrixToSolve { get; set; }
 
+        public int FinalCost { get; set; } 
+
         public ATSPSolver()
         {
             ResultPath = new List<Edge>();
@@ -33,7 +35,7 @@ namespace PEA_TSP1
             _currentAtspMatrix = new ATSPMatrix();
             _currentAtspMatrix.Matrix = (int[,])MatrixToSolve.Matrix.Clone();
 
-            while (_currentAtspMatrix.TakenEdges.Count <= _currentAtspMatrix.Dimension -2)
+            while (_currentAtspMatrix.TakenEdges.Count < _currentAtspMatrix.Dimension -2)
             {
                 ReduceRows();
                 ReduceColumns();
@@ -64,7 +66,63 @@ namespace PEA_TSP1
                 //Console.WriteLine();
                 //new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
             }
-            
+
+
+            //dodanie koncowych dwoch krawedzi
+            ReduceRows();
+            ReduceColumns();
+            TakeLastTwoEdges();
+            DeletedRowsAndColumnsToResult();
+            FinalCost = _currentAtspMatrix.LowerBound;
+            new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
+
+
+        }
+
+        private void TakeLastTwoEdges()
+        {
+            if (!(_currentAtspMatrix.TakenEdges.Count >= _currentAtspMatrix.Dimension - 2))
+            {
+                Console.WriteLine("Błąd TakeLastTwoEdges");
+                return;
+            }
+
+            for (int i = 0; i < _currentAtspMatrix.Dimension; i++)
+            {
+                bool oneZero = false;
+                int zeroX=-1;
+                int zeroY=-1;
+
+                for (int j = 0; j < _currentAtspMatrix.Dimension; j++)
+                {
+                    if (_currentAtspMatrix.Matrix[i, j] == 0)
+                    {
+                        oneZero = !oneZero;
+                        zeroX = i;
+                        zeroY = j;
+                    }
+                }
+
+                if (oneZero)
+                {
+                    var edge = new Edge();
+                    edge.CityA = zeroX;
+                    edge.CityB = zeroY;
+                    _currentAtspMatrix.TakenEdges.Add(edge);
+
+                    for (int j = 0; j < _currentAtspMatrix.Dimension; j++)
+                    {
+                        _currentAtspMatrix.Matrix[j, zeroY] = -1;
+                    }
+                }
+
+            }
+            if (_currentAtspMatrix.Finished)
+            {
+                return;
+            }
+            TakeLastTwoEdges();
+
         }
 
         private void SetInfToRowAndColumn(int row, int col)
@@ -106,29 +164,20 @@ namespace PEA_TSP1
 
         private void DeletedRowsAndColumnsToResult()
         {
-            var edgeList = new List<Edge>();
-
-            for (int i = 0; i < _currentAtspMatrix.Dimension-2; i++)
+            if (_currentAtspMatrix.Dimension != _currentAtspMatrix.TakenEdges.Count)
             {
-                var edge = new Edge();
-                edge.CityA = _currentAtspMatrix.DeletedRows[i];
-                edge.CityB = _currentAtspMatrix.DeletedColumns[i];
-                edgeList.Add(edge);    
+                Console.WriteLine("Błąd DeletedRowsAndColumnToResultPath");
             }
 
-            foreach (Edge edge in edgeList)
+            var edgeListToReturn = new List<Edge>();
+            edgeListToReturn.Add(_currentAtspMatrix.TakenEdges[0]);
+
+            for (int i = 0; i < _currentAtspMatrix.Dimension; i++)
             {
-                Console.WriteLine(edge.CityA + " "+edge.CityB);
+                edgeListToReturn.Add(_currentAtspMatrix.TakenEdges.First(e => e.CityA == edgeListToReturn[i].CityB));
             }
 
-             ResultPath.Add(edgeList[0]);
-
-            for (int i = 0; i < _currentAtspMatrix.Dimension-2; i++)
-            {
-                var resultEdge = edgeList.FirstOrDefault(x => x.CityA == ResultPath[i].CityB);
-                ResultPath.Add(resultEdge);
-            }
-
+            ResultPath = edgeListToReturn;
         }
 
 

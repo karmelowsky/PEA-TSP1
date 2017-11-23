@@ -30,6 +30,7 @@ namespace PEA_TSP1
                     Console.Write(atspMatrix.Matrix[i, j]+ " ");
                 }
                 Console.WriteLine();
+                
             }
             
         }

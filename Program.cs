@@ -15,14 +15,21 @@ namespace PEA_TSP1
 
             consoleDisplayer.ShowFileList(fileReader.GetATSPFilenames());
 
-            var atspMatrix = fileReader.GetMatrix("TEST6x6");
+            var atspMatrix = fileReader.GetMatrix("TEST2");
 
             ATSPSolver solver = new ATSPSolver();
             solver.MatrixToSolve = atspMatrix;
             solver.Solve();
 
+            Console.WriteLine();
+            Console.Write(solver.ResultPath[0].CityA);
 
+            foreach (var edge in solver.ResultPath)
+            {
+                Console.Write(" ->" + edge.CityB);
+            }
 
+            Console.WriteLine("\nKoszt podrozy: "+ solver.FinalCost);
             Console.ReadKey();
         }
     }
