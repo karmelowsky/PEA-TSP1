@@ -48,6 +48,8 @@ namespace PEA_TSP1
                 // Xij = 0 Przygotowanie macierzy
                 var matrixB = new ATSPMatrix();
                 matrixB.Matrix = (int[,])_currentAtspMatrix.Matrix.Clone();
+                matrixB.LowerBound = _currentAtspMatrix.LowerBound;
+                matrixB.TakenEdges = ConvertTools.CopyEdges(_currentAtspMatrix.TakenEdges);
 
                 // zablokowanie Xij = INF
                 matrixB.Matrix[edgeToDelete.CityA, edgeToDelete.CityB] = -1;
@@ -75,6 +77,7 @@ namespace PEA_TSP1
             DeletedRowsAndColumnsToResult();
             FinalCost = _currentAtspMatrix.LowerBound;
             new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
+            
 
 
         }

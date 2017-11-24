@@ -40,5 +40,17 @@ namespace PEA_TSP1
 
             return true;
         }
+
+        public static List<Edge> CopyEdges(List<Edge> edgeList)
+        {
+            var newList = new List<Edge>();
+
+            foreach (var edge in edgeList)
+            {
+                newList.Add(edge);
+            }
+
+            return newList;
+        }
     }
 }
