@@ -8,6 +8,6 @@ C:\vs projects\PEA-TSP1\obj\Debug\PEA-TSP1.pdb
 C:\PEA-TSP1\bin\Debug\PEA-TSP1.exe.config
 C:\PEA-TSP1\bin\Debug\PEA-TSP1.exe
 C:\PEA-TSP1\bin\Debug\PEA-TSP1.pdb
-C:\PEA-TSP1\obj\Debug\PEA-TSP1.csprojResolveAssemblyReference.cache
 C:\PEA-TSP1\obj\Debug\PEA-TSP1.exe
 C:\PEA-TSP1\obj\Debug\PEA-TSP1.pdb
+C:\PEA-TSP1\obj\Debug\PEA-TSP1.csprojResolveAssemblyReference.cache

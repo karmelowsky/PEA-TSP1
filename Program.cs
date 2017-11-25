@@ -12,31 +12,42 @@ namespace PEA_TSP1
         {
             FileReader fileReader = new FileReader();
             var consoleDisplayer = new ConsoleDisplayer();
+            int filenameNumber;
+           
 
-            consoleDisplayer.ShowFileList(fileReader.GetATSPFilenames());
 
-            var atspMatrix = fileReader.GetMatrix("ftv44.atsp");
-
-            // var atspMatrix = ATSPMatrix.GenerateRandomMatrix(40, 2, 200);
-            ATSPSolver solver = new ATSPSolver();
-            solver.MatrixToSolve = atspMatrix;
-
-            var start = DateTime.Now;
-            solver.Solve();
-            var stop = DateTime.Now;
-            TimeSpan difference = stop - start;
-
-            Console.WriteLine();
-            Console.Write(solver.ResultPath[0].CityA);
-
-            foreach (var edge in solver.ResultPath)
+            while (true)
             {
-                Console.Write(" ->" + edge.CityB);
-            }
+                Console.Clear();
+                var fileList = fileReader.GetATSPFilenames();
+                consoleDisplayer.ShowFileList(fileList);
+                Console.WriteLine("Wpisz numer pliku z macierza do rozwiazania: ");
+                filenameNumber = int.Parse(Console.ReadLine());
+                var atspMatrix = fileReader.GetMatrix(fileList[filenameNumber]);
 
-            Console.WriteLine("\nKoszt podrozy: "+ solver.FinalCost);
-            Console.WriteLine("Czas wykonywania algorytmu: " + difference.TotalMilliseconds+ "ms");
-            Console.ReadKey();
+                // var atspMatrix = ATSPMatrix.GenerateRandomMatrix(40, 2, 200);
+                ATSPSolver solver = new ATSPSolver();
+                solver.MatrixToSolve = atspMatrix;
+
+                var start = DateTime.Now;
+                solver.Solve();
+                var stop = DateTime.Now;
+                TimeSpan difference = stop - start;
+
+                Console.WriteLine();
+                Console.Write(solver.ResultPath[0].CityA);
+
+                foreach (var edge in solver.ResultPath)
+                {
+                    Console.Write(" ->" + edge.CityB);
+                }
+
+                Console.WriteLine("\nKoszt podrozy: " + solver.FinalCost);
+                Console.WriteLine("Czas wykonywania algorytmu: " + difference.TotalMilliseconds + "ms");
+                Console.WriteLine("Wciśnij dowolny klawisz, aby kontynuować..");
+                Console.ReadKey();
+            }
+            
         }
     }
 }

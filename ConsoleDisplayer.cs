@@ -22,17 +22,23 @@ namespace PEA_TSP1
 
         public void ShowMatrix(ATSPMatrix atspMatrix)
         {
-            for (int i = 0; i < atspMatrix.Dimension; i++)
+            try
             {
-                for (int j = 0; j < atspMatrix.Dimension; j++)
+                for (int i = 0; i < atspMatrix.Dimension; i++)
                 {
-                    //Console.CursorLeft = j * 5;
-                    Console.Write(atspMatrix.Matrix[i, j]+ " ");
+                    for (int j = 0; j < atspMatrix.Dimension; j++)
+                    {
+                        Console.CursorLeft = j * 4;
+                        Console.Write(atspMatrix.Matrix[i, j] + " ");
+                    }
+                    Console.WriteLine();
+
                 }
-                Console.WriteLine();
-                
             }
-            
+            catch
+            {
+                Console.WriteLine("Zbyt duża macierz na wyświetlenie w konsoli");
+            }
         }
     }
 }

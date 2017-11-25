@@ -19,7 +19,7 @@ namespace PEA_TSP1
         {
             var listToReturn = new List<string>();
 
-            listToReturn = Directory.GetDirectories(ATSPPath).ToList();
+            listToReturn = Directory.GetFiles(ATSPPath).ToList();
 
             return listToReturn;
         }
@@ -32,7 +32,7 @@ namespace PEA_TSP1
 
             try
             {
-                using (StreamReader sr = new StreamReader(ATSPPath + filename + "\\" + filename))
+                using (StreamReader sr = new StreamReader(filename))
                 {
                     text = sr.ReadToEnd();
                 }
@@ -70,7 +70,11 @@ namespace PEA_TSP1
             for (int j = 0; j < dimension; j++)
             {
                 matrix[i,j] = int.Parse(stringNumbers[index]);
-                matrix[i,j] = matrix[i, j] > 9998 ? -1 : matrix[i, j];
+
+                if (i == j)
+                {
+                    matrix[i, j] = -1;
+                }
 
                 index++;
             }
