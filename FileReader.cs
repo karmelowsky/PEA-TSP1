@@ -63,7 +63,7 @@ namespace PEA_TSP1
 
             text = text.Substring(firstNumberIndex);
 
-            var stringNumbers = text.Split(new char[] {' ','\t', '\r' , 'E', 'O', 'F'}, StringSplitOptions.RemoveEmptyEntries);
+            var stringNumbers = text.Split(new char[] {' ','\t', '\r' , 'E', 'O', 'F','\n'}, StringSplitOptions.RemoveEmptyEntries);
 
             int index = 0;
             for(int i = 0; i < dimension; i++)

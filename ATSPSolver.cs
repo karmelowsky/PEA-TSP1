@@ -31,53 +31,80 @@ namespace PEA_TSP1
                 Console.WriteLine("Nie przydzielono macierzy do rozwiązania");
                 return;
             }
+            new ConsoleDisplayer().ShowMatrix(MatrixToSolve);
 
-            _currentAtspMatrix = new ATSPMatrix();
-            _currentAtspMatrix.Matrix = (int[,])MatrixToSolve.Matrix.Clone();
+            var firstMatrix = new ATSPMatrix();
+            firstMatrix.Matrix = (int[,])MatrixToSolve.Matrix.Clone();
+            _matrixQueue.Add(firstMatrix);
 
-            while (_currentAtspMatrix.TakenEdges.Count < _currentAtspMatrix.Dimension -2)
+            while (true)
             {
-                ReduceRows();
-                ReduceColumns();
+                var minLB = _matrixQueue.Min(x => x.LowerBound);
+                var minLbMatrixes = _matrixQueue.Where(x => x.LowerBound == minLB);
+                var maxTakenEdges = minLbMatrixes.Max(x => x.TakenEdges.Count);
 
-                Console.WriteLine();
-                new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
 
-                var edgeToDelete = FindEdgeToDelete();
+                _currentAtspMatrix = minLbMatrixes.Where(x => x.TakenEdges.Count == maxTakenEdges).First();
 
-                // Xij = 0 Przygotowanie macierzy
-                var matrixB = new ATSPMatrix();
-                matrixB.Matrix = (int[,])_currentAtspMatrix.Matrix.Clone();
-                matrixB.LowerBound = _currentAtspMatrix.LowerBound;
-                matrixB.TakenEdges = ConvertTools.CopyEdges(_currentAtspMatrix.TakenEdges);
+                if (_currentAtspMatrix.Finished)
+                {
+                    DeletedRowsAndColumnsToResult();
+                    FinalCost = _currentAtspMatrix.LowerBound;
+                    return;
+                }
+                    
 
-                // zablokowanie Xij = INF
-                matrixB.Matrix[edgeToDelete.CityA, edgeToDelete.CityB] = -1;
+                if (_currentAtspMatrix.TakenEdges.Count < _currentAtspMatrix.Dimension - 2)
+                {
+                    ReduceRows();
+                    ReduceColumns();
 
-                // redukcja alternatywnej drogi i redukcja (aktualizacja LB)
-                matrixB.ReduceRows();
-                matrixB.ReduceColumns();
+                    //Console.WriteLine();
+                    //new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
 
-                //dodanie macierzy B listy oczekujacych
-                _matrixQueue.Add(matrixB);
+                    var edgeToDelete = FindEdgeToDelete();
 
-                //wstawienie nieskonczonosci do obecnej macierzy w wyszukanym wierszu i kolumnie
-                SetInfToRowAndColumn(edgeToDelete.CityA, edgeToDelete.CityB);
-                _currentAtspMatrix.TakenEdges.Add(edgeToDelete);
-                Console.WriteLine("Poniżej wzieto krawedz: "+ (edgeToDelete.CityA) +" "+(edgeToDelete.CityB));
-                //Console.WriteLine();
-                //new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
+                    // Xij = 0 Przygotowanie macierzy
+                    var matrixB = new ATSPMatrix();
+                    matrixB.Matrix = (int[,])_currentAtspMatrix.Matrix.Clone();
+                    matrixB.LowerBound = _currentAtspMatrix.LowerBound;
+                    matrixB.TakenEdges = ConvertTools.CopyEdges(_currentAtspMatrix.TakenEdges);
+
+                    // zablokowanie Xij = INF
+                    matrixB.Matrix[edgeToDelete.CityA, edgeToDelete.CityB] = -1;
+
+                    // redukcja alternatywnej drogi i redukcja (aktualizacja LB)
+                    matrixB.ReduceRows();
+                    matrixB.ReduceColumns();
+
+                    //dodanie macierzy B listy oczekujacych
+                    _matrixQueue.Add(matrixB);
+
+                    //wstawienie nieskonczonosci do obecnej macierzy w wyszukanym wierszu i kolumnie
+                    SetInfToRowAndColumn(edgeToDelete.CityA, edgeToDelete.CityB);
+                    _currentAtspMatrix.TakenEdges.Add(edgeToDelete);
+                    //Console.WriteLine("Poniżej wzieto krawedz: " + (edgeToDelete.CityA) + " " + (edgeToDelete.CityB));
+                    //Console.WriteLine();
+                    //new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
+
+                    if(_currentAtspMatrix.TakenEdges.Count == _currentAtspMatrix.Dimension -2)
+                    {
+                        //dodanie koncowych dwoch krawedzi
+                        ReduceRows();
+                        ReduceColumns();
+                        TakeLastTwoEdges();
+                    }
+                    
+                    continue;
+                }
+
+
+                
+               
+                
             }
-
-
-            //dodanie koncowych dwoch krawedzi
-            ReduceRows();
-            ReduceColumns();
-            TakeLastTwoEdges();
-            DeletedRowsAndColumnsToResult();
-            FinalCost = _currentAtspMatrix.LowerBound;
-            new ConsoleDisplayer().ShowMatrix(_currentAtspMatrix);
             
+
 
 
         }
@@ -169,7 +196,7 @@ namespace PEA_TSP1
                 return;
             }
 
-            Console.WriteLine("Błąd SetInfRowAndColumn");
+            //Console.WriteLine("Błąd SetInfRowAndColumn");
         }
 
         private void DeletedRowsAndColumnsToResult()

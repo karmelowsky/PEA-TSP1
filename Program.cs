@@ -15,11 +15,16 @@ namespace PEA_TSP1
 
             consoleDisplayer.ShowFileList(fileReader.GetATSPFilenames());
 
-            var atspMatrix = fileReader.GetMatrix("ftv33.atsp");
+            var atspMatrix = fileReader.GetMatrix("ftv44.atsp");
 
+            // var atspMatrix = ATSPMatrix.GenerateRandomMatrix(40, 2, 200);
             ATSPSolver solver = new ATSPSolver();
             solver.MatrixToSolve = atspMatrix;
+
+            var start = DateTime.Now;
             solver.Solve();
+            var stop = DateTime.Now;
+            TimeSpan difference = stop - start;
 
             Console.WriteLine();
             Console.Write(solver.ResultPath[0].CityA);
@@ -30,6 +35,7 @@ namespace PEA_TSP1
             }
 
             Console.WriteLine("\nKoszt podrozy: "+ solver.FinalCost);
+            Console.WriteLine("Czas wykonywania algorytmu: " + difference.TotalMilliseconds+ "ms");
             Console.ReadKey();
         }
     }

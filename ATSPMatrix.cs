@@ -91,5 +91,28 @@ namespace PEA_TSP1
             }
 
         }
+
+        public static ATSPMatrix GenerateRandomMatrix(int dimension, int minValue, int maxValue)
+        {
+            var atspMatrix = new ATSPMatrix();
+            var random = new Random();
+            atspMatrix.Matrix = new int[dimension, dimension];
+
+            for(int i = 0; i< dimension; i++)
+            {
+                for(int j=0; j< dimension; j++)
+                {
+                    if(j==i)
+                    {
+                        atspMatrix.Matrix[i, j] = -1;
+                        continue;
+                    }
+                    atspMatrix.Matrix[i, j] = random.Next(minValue, maxValue);
+                }
+            }
+
+
+            return atspMatrix;
+        }
     }
 }
