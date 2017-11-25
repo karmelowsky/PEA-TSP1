@@ -40,5 +40,9 @@ namespace PEA_TSP1
                 Console.WriteLine("Zbyt duża macierz na wyświetlenie w konsoli");
             }
         }
+
+        
+
+        
     }
 }
