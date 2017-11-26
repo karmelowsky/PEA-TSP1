@@ -8,17 +8,22 @@ namespace PEA_TSP1
 {
     public class Menu
     {
-        private int menuChoice;
-        private string matrixName = null;
-        private ATSPMatrix atspMatrix;
+        private int _menuChoice;
+        private string _matrixName = null;
+        private ATSPMatrix _atspMatrix;
 
         private void ShowMenu()
         {
             Console.WriteLine("1. Generuj losowa macierz");
             Console.WriteLine("2. Wybierz macierz do wczytania");
             Console.WriteLine("3. Wyświetl macierz");
-            Console.WriteLine("4. Rozpocznij algorytm\n");
-            Console.WriteLine("Macierz kosztów: " + (matrixName ?? "brak\n"));
+            Console.WriteLine("4. Rozpocznij algorytm");
+            if(_matrixName?.Contains("Wygenerowana") ?? false)
+            {
+                Console.WriteLine("5. Zapisz wygenerowana macierz do pliku");
+            }
+            Console.WriteLine();
+            Console.WriteLine("Macierz kosztów: " + (_matrixName ?? "brak\n"));
             Console.WriteLine("Twoj wybor: ");
         }
 
@@ -26,14 +31,14 @@ namespace PEA_TSP1
         {
             try
             {
-                menuChoice = Int32.Parse(Console.ReadLine());
+                _menuChoice = Int32.Parse(Console.ReadLine());
             }
             catch
             {
                 return false;
             }
 
-            if(menuChoice >0 && menuChoice < 5)
+            if(_menuChoice >0 && _menuChoice < 6)
             return true;
 
             return false;
@@ -54,7 +59,7 @@ namespace PEA_TSP1
                         continue;
                     }
 
-                    switch (menuChoice)
+                    switch (_menuChoice)
                     {
                         case 1:
                             RandomMatrixGenerate();
@@ -67,6 +72,9 @@ namespace PEA_TSP1
                             break;
                         case 4:
                             RunAlgorithm();
+                            break;
+                        case 5:
+                            SaveGeneratedMatrixToFile();
                             break;
                         default:
                             break;
@@ -81,11 +89,31 @@ namespace PEA_TSP1
             }            
         }
 
+        private void SaveGeneratedMatrixToFile()
+        {
+            if(!_matrixName.Contains("Wygenerowana") || _atspMatrix?.Matrix==null)
+            {
+                return;
+            }
+
+            var fileWriter = new FileWriter();
+            if(fileWriter.SaveMatrixToFile(_atspMatrix))
+            {
+                Console.WriteLine("Zapisano wygenerowaną macierz kosztów");
+            }
+            else
+            {
+                Console.WriteLine("Błąd przy zapisie wygenerowanej macierzy kosztów");
+            }
+
+            Console.WriteLine("Wciśnij dowolny klawisz, aby kontynuować..");
+            Console.ReadKey();
+        }
 
         private void RunAlgorithm()
         {
             ATSPSolver solver = new ATSPSolver();
-            solver.MatrixToSolve = atspMatrix;
+            solver.MatrixToSolve = _atspMatrix;
 
             var start = DateTime.Now;
             solver.Solve();
@@ -108,12 +136,12 @@ namespace PEA_TSP1
 
         private void ShowMatrix()
         {
-            if (atspMatrix?.Matrix == null)
+            if (_atspMatrix?.Matrix == null)
             { 
                 return;
             }
 
-            new ConsoleDisplayer().ShowMatrix(atspMatrix);
+            new ConsoleDisplayer().ShowMatrix(_atspMatrix);
             Console.WriteLine("Wciśnij dowolny klawisz, aby kontynuować..");
             Console.ReadKey();
         }
@@ -122,8 +150,8 @@ namespace PEA_TSP1
         {
             Console.WriteLine("Podaj wymiar dla wygenerowanej macierzy kosztów: ");
             var dimension = int.Parse(Console.ReadLine());
-            atspMatrix = ATSPMatrix.GenerateRandomMatrix(dimension,0,200);
-            matrixName = "Wygenerowana,  " + dimension + " miast";
+            _atspMatrix = ATSPMatrix.GenerateRandomMatrix(dimension,0,200);
+            _matrixName = "Wygenerowana,  " + dimension + " miast";
         }
 
         private void ChooseFile()
@@ -137,8 +165,8 @@ namespace PEA_TSP1
 
             Console.WriteLine("Wpisz numer pliku, który ma być załadowany: ");
             var filenameNumber = int.Parse(Console.ReadLine());
-            atspMatrix = fileReader.GetMatrix(fileList[filenameNumber]);
-            matrixName = fileList[filenameNumber];
+            _atspMatrix = fileReader.GetMatrix(fileList[filenameNumber]);
+            _matrixName = fileList[filenameNumber];
         }
     }
 }

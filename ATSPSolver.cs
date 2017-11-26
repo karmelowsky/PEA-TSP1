@@ -96,17 +96,8 @@ namespace PEA_TSP1
                     }
                     
                     continue;
-                }
-
-
-                
-               
-                
+                }   
             }
-            
-
-
-
         }
 
         private void TakeLastTwoEdges()

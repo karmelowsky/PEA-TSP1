@@ -3,4 +3,3 @@ C:\PEA-TSP1\bin\Release\PEA-TSP1.exe
 C:\PEA-TSP1\bin\Release\PEA-TSP1.pdb
 C:\PEA-TSP1\obj\Release\PEA-TSP1.exe
 C:\PEA-TSP1\obj\Release\PEA-TSP1.pdb
-C:\PEA-TSP1\obj\Release\PEA-TSP1.csprojResolveAssemblyReference.cache
